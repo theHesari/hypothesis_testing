@@ -19,7 +19,6 @@ class Dataset:
         self.dataset_root = dataset_root
         self.dataset_name = dataset_name
 
-
     def _generate_data(self):
         """
         Generate the dataset with specified biases and distributions.
@@ -61,15 +60,14 @@ class Dataset:
         - df (DataFrame): The DataFrame stored in the instance.
 
         """
-        # path = os.path.join(self.dataset_root, self.dataset_name)
-        # if os.path.exists(path):
-        #     print('Reading dataset from CSV...')
-        #     return pd.read_csv(path)
-        # else:
-        #     print('Generating a new dataset...')
-        #     self.save()
-        #     return self.df
-        return self.df
+        path = os.path.join(self.dataset_root, self.dataset_name)
+        if os.path.exists(path):
+            print('Reading dataset from CSV...')
+            return pd.read_csv(path)
+        else:
+            print('Generating a new dataset...')
+            self.save()
+            return self.df
 
     def describe_data(self):
         """
@@ -106,6 +104,7 @@ class Dataset:
         # Save the DataFrame to CSV
         self.df.to_csv(path, index=False)
         print(f'Data saved to {path}')
+
 
 # Example of using the Dataset class
 dataset = Dataset(n=1000, gender_bias=5000)
