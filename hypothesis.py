@@ -1,17 +1,8 @@
 from scipy import stats
-from dataset import Dataset
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-
-
-def load_data():
-    """Load/Generate the dataset """
-    dataset = Dataset(n=1000, gender_bias=-3100)
-    print('Loading Dataset... ')
-    df = dataset.get_dataframe()
-    return df
+from utils import load_data
 
 
 def describe_gender_data(df):
@@ -54,16 +45,37 @@ def plot_gender_salary_boxplot(df):
     plt.show()  # Display the plot
 
 
+def check_normality(data):
+    test_stat_normality, p_value_normality=stats.shapiro(data)
+    print("p value:%.4f" % p_value_normality)
+    if p_value_normality <0.05:
+        print("Reject null hypothesis >> The data is not normally distributed")
+    else:
+        print("Fail to reject null hypothesis >> The data is normally distributed")
+
+
+def check_variance_homogeneity(group1, group2):
+    test_stat_var, p_value_var= stats.levene(group1,group2)
+    print("p value:%.4f" % p_value_var)
+    if p_value_var <0.05:
+        print("Reject null hypothesis >> The variances of the samples are different.")
+    else:
+        print("Fail to reject null hypothesis >> The variances of the samples are same.")
+
+
 def check_assumptions(male_salaries, female_salaries):
     """Check for normality and homogeneity of variances."""
     # Normality test
     normality_male = stats.shapiro(male_salaries)
+    normality_state_male = normality_male[1] < 0.05
     normality_female = stats.shapiro(female_salaries)
-    print(f"Normality test results -- Males: {normality_male}, Females: {normality_female}")
+    normality_state_female = normality_female[1] < 0.05
+    print(f"Normality test results -- Males: {normality_male} --> Normal: {normality_state_male}, Females: {normality_female} --> Normal: {normality_state_female}")
 
     # Variance equality test
     variance_test = stats.levene(male_salaries, female_salaries)
-    print(f"Levene's test result for equal variances: {variance_test}")
+    variance_test_state = variance_test[1] < 0.05
+    print(f"Levene's test result for equal variances: {variance_test} --> Different values: {variance_test_state}")
 
     return normality_male, normality_female, variance_test
 
@@ -90,7 +102,7 @@ def main():
     print(stats_summary)
 
     # Plot the boxplot for salary distribution by gender
-    # plot_gender_salary_boxplot(df)
+    plot_gender_salary_boxplot(df)
 
     # Prepare data
     male_salaries = df[df['Gender'] == 'Male']['Starting Salary']
