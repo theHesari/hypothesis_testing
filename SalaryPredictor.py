@@ -7,6 +7,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
+import os
 from utils import load_data
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -14,41 +15,51 @@ import seaborn as sns
 
 class SalaryPredictor:
     def __init__(self):
+        # Initialize the preprocessor and model dictionary
         self.preprocessor = None
         self.models = {}
 
     def load_and_preprocess_data(self):
+        # Load the dataset using a utility function
         df = load_data()
         if df is None:
             return None, None, None, None
 
+        # Define features and target variable
         X = df.drop('Starting Salary', axis=1)
         y = df['Starting Salary']
 
+        # Specify numeric and categorical features
         numeric_features = ['GPA', 'Experience']
         categorical_features = ['Gender', 'Specialization']
 
+        # Define transformations for numeric and categorical data
         numeric_transformer = StandardScaler()
         categorical_transformer = OneHotEncoder(drop='first')
 
+        # Setup the ColumnTransformer with appropriate transformations
         self.preprocessor = ColumnTransformer(
             transformers=[
                 ('num', numeric_transformer, numeric_features),
                 ('cat', categorical_transformer, categorical_features)
             ])
 
+        # Split the data into training and testing sets
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         return X_train, X_test, y_train, y_test
 
     def train_and_evaluate(self, X_train, X_test, y_train, y_test):
+        # Ensure there is data to train on
         if X_train is None:
             return
 
+        # Define the models to train
         models = {
             'Linear Regression': LinearRegression(),
             'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42)
         }
 
+        # Train each model and evaluate its performance
         for name, model in models.items():
             pipeline = Pipeline(steps=[('preprocessor', self.preprocessor),
                                        ('regressor', model)])
@@ -60,19 +71,24 @@ class SalaryPredictor:
             print(f"{name} - MSE: {mse}, R^2: {r2}")
 
     def feature_importance(self):
+        # Get the Random Forest model, if trained
         model = self.models.get('Random Forest')
         if model is None:
             print("Random Forest model is not trained.")
             return
 
+        # Extract feature names and importances
         feature_names = self.preprocessor.get_feature_names_out()
         importances = model.named_steps['regressor'].feature_importances_
         indices = np.argsort(importances)[::-1]
+
+        # Output the feature importance ranking
         print("Feature ranking:")
         for f in range(len(feature_names)):
             print(f"{f + 1}. {feature_names[indices[f]]} ({importances[indices[f]]:.3f})")
 
     def plot_feature_importances(self):
+        # Visualize feature importances for the Random Forest model
         model = self.models.get('Random Forest')
         if model is None:
             print("Random Forest model is not trained.")
@@ -91,6 +107,7 @@ class SalaryPredictor:
         plt.show()
 
     def run(self):
+        # Main method to load data, train models, show importance, and plot
         X_train, X_test, y_train, y_test = self.load_and_preprocess_data()
         self.train_and_evaluate(X_train, X_test, y_train, y_test)
         self.feature_importance()
