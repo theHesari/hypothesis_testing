@@ -91,7 +91,7 @@ def perform_ttest(male_salaries, female_salaries):
     return t_stat, p_value
 
 
-def main():
+def run_hypothesis():
     # Load the dataset
     df = load_data()
     if df is None:
@@ -121,4 +121,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run_hypothesis()

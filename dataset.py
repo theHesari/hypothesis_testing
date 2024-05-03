@@ -1,5 +1,4 @@
 import os
-
 import pandas as pd
 import numpy as np
 
@@ -106,9 +105,10 @@ class Dataset:
         print(f'Data saved to {path}')
 
 
-# Example of using the Dataset class
-dataset = Dataset(n=1000, gender_bias=5000)
-print('Dataset: ')
-print(dataset.get_dataframe())
-print(dataset.head())
-print(dataset.describe_data())
+# Usage
+if __name__ == "__main__":
+    dataset = Dataset(n=1000, gender_bias=5000)
+    print('Dataset: ')
+    print(dataset.get_dataframe())
+    print(dataset.head())
+    print(dataset.describe_data())
